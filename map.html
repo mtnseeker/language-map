@@ -86,6 +86,7 @@
   .mapbox{position:relative;border:none;border-radius:3px;overflow:hidden;
     box-shadow:0 14px 40px -12px rgba(50,28,10,.6), 0 0 0 1px rgba(90,58,30,.5);}
   svg{display:block;width:100%;height:auto;cursor:grab;}
+  #map{touch-action:none;}
   svg.grabbing{cursor:grabbing;}
   .graticule{fill:none;stroke:var(--land-edge);stroke-width:.4;opacity:.22;}
   .sphere{fill:var(--sea);}
@@ -133,6 +134,34 @@
   .hint b{color:var(--accent-dk);font-style:normal;font-weight:600;}
   footer{margin-top:30px;font-family:"Spectral",serif;font-size:12px;color:var(--faint);
     opacity:.85;line-height:1.7;border-top:1px solid var(--rule);padding-top:14px;}
+
+  @media (max-width:700px){
+    body::before{box-shadow:inset 0 0 90px 16px rgba(70,38,12,.34);}
+    .wrap{padding:22px 12px 46px;}
+    .cartouche{margin-top:0;padding:14px 22px 12px;}
+    .cart-svg{display:none;}
+    .cartouche h1{font-size:clamp(28px,9vw,38px);}
+    .sub{font-size:15.5px;line-height:1.5;}
+    .controls{display:grid;grid-template-columns:1fr;gap:9px;margin-top:20px;}
+    input[type=search],select{width:100%;min-width:0;font-size:16px;padding:12px 13px;}
+    .legend{gap:9px 12px;font-size:11px;line-height:1.35;}
+    .legend .right{margin-left:0;width:100%;}
+    .maptools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+    .btn{min-height:42px;padding:10px 8px;font-size:11px;}
+    .mapbox{border-radius:6px;}
+    #map{
+      height:clamp(360px,68vh,520px);
+      min-height:360px;
+    }
+    .tip{display:none;}
+    .banner{align-items:flex-start;gap:8px;margin-top:12px;}
+    .banner.show{padding:12px;}
+    .banner .nm{font-size:17px;}
+    .banner .note{min-width:0;width:100%;font-size:14px;line-height:1.45;}
+    .banner .x{width:100%;text-align:center;padding:9px 11px;}
+    .phasekey{width:100%;flex-wrap:wrap;gap:8px;}
+    .hint{font-size:13.5px;line-height:1.55;}
+  }
 </style>
 </head>
 <body>
@@ -262,6 +291,7 @@ const fmtFull=n=>n.toLocaleString("en-US");
 // ---- projection / map ----
 const W=960,H=500;
 const svg=d3.select("#map");
+const mobileMap=window.matchMedia("(max-width:700px)");
 const proj=d3.geoNaturalEarth1().scale(180).translate([W/2,H/2+10]);
 const path=d3.geoPath(proj);
 
@@ -309,7 +339,10 @@ const maxSpk=d3.max(FAMS,f=>f.speakers||1);
 const maxLng=d3.max(FAMS,f=>f.langs);
 const rSpk=d3.scaleSqrt().domain([1,maxSpk]).range([2.2,34]);
 const rLng=d3.scaleSqrt().domain([1,maxLng]).range([2.2,30]);
-const radius=f=> sizeMode==="speakers" ? rSpk(Math.max(f.speakers,1)) : rLng(f.langs);
+const radius=f=>{
+  const r=sizeMode==="speakers" ? rSpk(Math.max(f.speakers,1)) : rLng(f.langs);
+  return mobileMap.matches ? Math.max(r,4.2) : r;
+};
 
 const tracedSet=new Set(Object.keys(MIGR));
 
@@ -609,6 +642,13 @@ const zoom=d3.zoom().scaleExtent([1,9]).on("zoom",ev=>{
 svg.call(zoom)
   .on("mousedown.cursor",()=>svg.classed("grabbing",true))
   .on("mouseup.cursor",()=>svg.classed("grabbing",false));
+
+function applyResponsiveMap(){
+  svg.attr("preserveAspectRatio",mobileMap.matches?"xMidYMid slice":"xMidYMid meet");
+  if(bub) drawBubbles();
+}
+applyResponsiveMap();
+mobileMap.addEventListener("change",applyResponsiveMap);
 
 const PRESETS={
   world:[W/2,H/2,1], ie:[proj([20,50])[0],proj([20,50])[1],2.4],
