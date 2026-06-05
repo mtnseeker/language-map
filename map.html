@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The World's Language Families — map &amp; migrations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* parchment palette */
+    --paper:#e8d8b5; --paper2:#dcc89e; --paper-dk:#cdb583;
+    --sea:#d9c9a3; --land:#cbb47e; --land-edge:#5b3a1e;
+    --ink:#3a2410; --ink2:#5b3d22; --muted:#6e5132; --faint:#8a6b46;
+    --rule:#8a6238;
+    --accent:#9b2d1f;            /* expedition red */
+    --accent-dk:#7a2015;
+    /* muted vintage inks for regions */
+    --r-Africa:#b06a25; --r-Eurasia:#5e7d52; --r-Global:#7a5a86;
+    --r-NewGuinea:#a35a7a; --r-Australia:#a98627;
+    --r-NorthAmerica:#3f6b78; --r-SouthAmerica:#9b4733; --r-Other:#7c6a52;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;
+    font-family:"Spectral",ui-serif,Georgia,serif;
+    background:
+      radial-gradient(120% 120% at 50% 8%, rgba(255,250,235,.55), transparent 55%),
+      radial-gradient(140% 120% at 50% 100%, rgba(60,30,10,.30), transparent 60%),
+      repeating-linear-gradient(95deg, rgba(120,80,40,.025) 0 2px, transparent 2px 5px),
+      repeating-linear-gradient(8deg, rgba(120,80,40,.02) 0 3px, transparent 3px 7px),
+      linear-gradient(160deg,#e8d8b5,#dcc89e 55%,#cdb583);
+    background-attachment:fixed;
+  }
+  /* burnt vignette edges of the whole page */
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    box-shadow:inset 0 0 160px 30px rgba(70,38,12,.45), inset 0 0 40px 4px rgba(50,25,8,.30);
+    background:radial-gradient(140% 110% at 50% 50%, transparent 62%, rgba(60,32,12,.22) 100%);}
+  .wrap{max-width:1240px;margin:0 auto;padding:46px 22px 80px;position:relative;z-index:2;}
+
+  .kicker{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--accent-dk);margin-bottom:12px;font-weight:600;}
+  .cartouche{position:relative;margin:6px auto 22px;max-width:760px;padding:18px 56px 14px;
+    text-align:center;}
+  .cart-svg{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+    filter:drop-shadow(0 6px 14px rgba(50,28,10,.28));
+    animation:cartIn .9s ease-out both;}
+  @keyframes cartIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  .cart-inner{position:relative;z-index:1;}
+  .cartouche .kicker{margin-bottom:8px;}
+  .cartouche h1{margin-bottom:8px;}
+  .cart-rule{display:flex;align-items:center;justify-content:center;gap:12px;
+    color:var(--accent-dk);font-size:13px;opacity:.85;}
+  .cart-rule span{height:1px;width:64px;background:linear-gradient(90deg,transparent,var(--rule));}
+  .cart-rule span:last-child{background:linear-gradient(90deg,var(--rule),transparent);}
+  h1{font-family:"Cinzel Decorative","Cinzel",serif;font-weight:700;
+    font-size:clamp(26px,4.6vw,46px);line-height:1.08;letter-spacing:.01em;margin-bottom:14px;
+    color:var(--ink);text-shadow:0 1px 0 rgba(255,250,235,.4);}
+  .sub{color:var(--ink2);max-width:70ch;font-size:16.5px;line-height:1.6;font-family:"Spectral",serif;}
+  .sub b{color:var(--accent-dk);font-weight:600;}
+
+  .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:26px 0 14px;}
+  input[type=search]{flex:1;min-width:240px;background:rgba(255,250,235,.5);border:1px solid var(--rule);
+    color:var(--ink);font-size:16px;padding:12px 15px;border-radius:4px;font-family:"Spectral",serif;outline:none;
+    box-shadow:inset 0 1px 3px rgba(80,50,20,.15);}
+  input[type=search]::placeholder{color:var(--faint);font-style:italic;}
+  input[type=search]:focus{border-color:var(--accent);}
+  select{background:rgba(255,250,235,.5);border:1px solid var(--rule);color:var(--ink);font-size:13.5px;
+    padding:12px 13px;border-radius:4px;font-family:"Cinzel",serif;cursor:pointer;outline:none;letter-spacing:.02em;}
+
+  .legend{display:flex;gap:15px;flex-wrap:wrap;font-family:"Cinzel",serif;font-size:11.5px;
+    color:var(--muted);align-items:center;margin-bottom:10px;letter-spacing:.03em;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;cursor:pointer;opacity:.85;transition:opacity .15s;}
+  .legend span:hover{opacity:1;}
+  .legend i{width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 1px rgba(60,36,16,.4);}
+  .legend .right{margin-left:auto;color:var(--faint);font-style:italic;font-family:"Spectral",serif;}
+
+  .maptools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .btn{font-family:"Cinzel",serif;font-size:12px;letter-spacing:.04em;padding:8px 14px;border-radius:3px;
+    border:1px solid var(--rule);background:rgba(255,250,235,.35);color:var(--ink2);cursor:pointer;transition:all .15s;}
+  .btn:hover{border-color:var(--accent);color:var(--accent-dk);background:rgba(255,250,235,.6);}
+  .btn.on{background:var(--accent);border-color:var(--accent-dk);color:var(--paper);font-weight:600;
+    box-shadow:0 2px 6px rgba(120,32,21,.4);}
+
+  .mapbox{position:relative;border:none;border-radius:3px;overflow:hidden;
+    box-shadow:0 14px 40px -12px rgba(50,28,10,.6), 0 0 0 1px rgba(90,58,30,.5);}
+  svg{display:block;width:100%;height:auto;cursor:grab;}
+  svg.grabbing{cursor:grabbing;}
+  .graticule{fill:none;stroke:var(--land-edge);stroke-width:.4;opacity:.22;}
+  .sphere{fill:var(--sea);}
+  .land{fill:var(--land);stroke:var(--land-edge);stroke-width:.9;filter:url(#rough);}
+  .land-shadow{fill:none;stroke:var(--land-edge);stroke-width:2.4;opacity:.16;filter:url(#rough);}
+  .coast-halo{fill:none;stroke:var(--land-edge);stroke-width:.5;opacity:.5;}
+  .border{fill:none;stroke:var(--land-edge);stroke-width:.4;opacity:.35;stroke-dasharray:1.6 1.4;pointer-events:none;}
+  .bubble{stroke:var(--ink);stroke-width:.6;cursor:pointer;transition:opacity .2s;mix-blend-mode:multiply;}
+  .bubble:hover{stroke:var(--accent-dk);stroke-width:1.6;}
+  .arc{fill:none;stroke-linecap:round;}
+  .arc-glow{fill:none;stroke-linecap:round;opacity:.18;}
+  .home-star{stroke:var(--paper);stroke-width:1;}
+  .home-label{font-family:"Cinzel",serif;font-size:11px;font-weight:600;fill:var(--ink);
+    letter-spacing:.04em;paint-order:stroke;stroke:var(--paper);stroke-width:3px;}
+  .mover{fill:var(--accent);stroke:var(--paper);stroke-width:.7;}
+
+  .tip{position:absolute;pointer-events:none;background:rgba(244,236,216,.97);border:1px solid var(--tc,var(--rule));
+    border-radius:3px;padding:10px 13px;font-family:"Spectral",serif;font-size:13px;color:var(--ink);
+    max-width:250px;opacity:0;transition:opacity .12s;z-index:5;line-height:1.45;
+    box-shadow:0 6px 18px -6px rgba(50,28,10,.5);}
+  .tip b{color:var(--tc,var(--accent-dk));}
+  .tip .big{font-family:"Cinzel",serif;font-size:14px;font-weight:600;display:block;margin-bottom:3px;letter-spacing:.02em;}
+
+  .banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 0;
+    border-radius:3px;background:rgba(255,250,235,.55);border:1px solid var(--bc,var(--rule));
+    border-left:4px solid var(--bc,var(--accent));opacity:0;height:0;overflow:hidden;transition:opacity .25s;
+    padding:0 16px;box-shadow:0 6px 18px -8px rgba(50,28,10,.4);}
+  .banner.show{opacity:1;height:auto;padding:14px 16px;}
+  .banner .nm{font-family:"Cinzel",serif;font-size:18px;font-weight:600;color:var(--bc,var(--ink));letter-spacing:.02em;}
+  .banner .meta{font-family:"Spectral",serif;font-size:12.5px;color:var(--faint);font-style:italic;}
+  .banner .conf{font-family:"Cinzel",serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 9px;border-radius:99px;border:1px solid currentColor;}
+  .conf.solid{color:#4d7a3a;} .conf.supported{color:#a07414;} .conf.contested{color:#9b2d1f;}
+  .banner .note{flex:1;min-width:240px;font-family:"Spectral",serif;font-size:14.5px;color:var(--ink2);line-height:1.55;}
+  .banner .x{font-family:"Cinzel",serif;font-size:11px;color:var(--faint);cursor:pointer;border:1px solid var(--rule);
+    padding:6px 11px;border-radius:3px;letter-spacing:.04em;}
+  .banner .x:hover{color:var(--accent-dk);border-color:var(--accent);}
+  .phasekey{display:flex;gap:14px;font-family:"Cinzel",serif;font-size:10.5px;color:var(--muted);align-items:center;letter-spacing:.03em;}
+  .phasekey .ph{display:inline-flex;align-items:center;gap:6px;}
+  .phasekey .dash{width:20px;height:0;display:inline-block;}
+  .phasekey .dash.solid{height:3px;border-radius:2px;}
+  .phasekey .dash.dashed{border-top:2px dashed;}
+
+  .hint{font-family:"Spectral",serif;font-size:13px;font-style:italic;color:var(--muted);margin:16px 0 0;line-height:1.65;}
+  .hint b{color:var(--accent-dk);font-style:normal;font-weight:600;}
+  footer{margin-top:30px;font-family:"Spectral",serif;font-size:12px;color:var(--faint);
+    opacity:.85;line-height:1.7;border-top:1px solid var(--rule);padding-top:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cartouche">
+    <svg class="cart-svg" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="cartRough" x="-3%" y="-8%" width="106%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="4" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+      <!-- aged inner panel -->
+      <rect x="40" y="34" width="920" height="172" rx="6"
+        fill="rgba(255,250,235,.34)" stroke="#5b3a1e" stroke-width="1" opacity=".9" filter="url(#cartRough)"/>
+      <!-- double rule -->
+      <rect x="50" y="44" width="900" height="152" rx="4"
+        fill="none" stroke="#5b3a1e" stroke-width="1.5" opacity=".7" filter="url(#cartRough)"/>
+      <rect x="56" y="50" width="888" height="140" rx="3"
+        fill="none" stroke="#5b3a1e" stroke-width=".5" opacity=".45"/>
+      <!-- scrollwork volutes, four corners (mirrored) -->
+      <g stroke="#5b3a1e" stroke-width="2" fill="none" opacity=".8" stroke-linecap="round" filter="url(#cartRough)">
+        <!-- top-left -->
+        <g transform="translate(40,34)">
+          <path d="M0,18 q-26,-4 -30,-22 q-2,-16 14,-18 q12,-1 11,11 q-1,9 -9,7 q-5,-2 -3,-7"/>
+          <path d="M18,0 q-4,-26 -22,-30"/>
+          <circle cx="-16" cy="-11" r="2.2" fill="#9b2d1f" stroke="none"/>
+        </g>
+        <!-- top-right -->
+        <g transform="translate(960,34) scale(-1,1)">
+          <path d="M0,18 q-26,-4 -30,-22 q-2,-16 14,-18 q12,-1 11,11 q-1,9 -9,7 q-5,-2 -3,-7"/>
+          <path d="M18,0 q-4,-26 -22,-30"/>
+          <circle cx="-16" cy="-11" r="2.2" fill="#9b2d1f" stroke="none"/>
+        </g>
+        <!-- bottom-left -->
+        <g transform="translate(40,206) scale(1,-1)">
+          <path d="M0,18 q-26,-4 -30,-22 q-2,-16 14,-18 q12,-1 11,11 q-1,9 -9,7 q-5,-2 -3,-7"/>
+          <path d="M18,0 q-4,-26 -22,-30"/>
+          <circle cx="-16" cy="-11" r="2.2" fill="#9b2d1f" stroke="none"/>
+        </g>
+        <!-- bottom-right -->
+        <g transform="translate(960,206) scale(-1,-1)">
+          <path d="M0,18 q-26,-4 -30,-22 q-2,-16 14,-18 q12,-1 11,11 q-1,9 -9,7 q-5,-2 -3,-7"/>
+          <path d="M18,0 q-4,-26 -22,-30"/>
+          <circle cx="-16" cy="-11" r="2.2" fill="#9b2d1f" stroke="none"/>
+        </g>
+      </g>
+      <!-- top & bottom center cartouche flourish -->
+      <g stroke="#5b3a1e" stroke-width="1.6" fill="none" opacity=".7" stroke-linecap="round">
+        <path d="M460,34 q40,-20 80,0" filter="url(#cartRough)"/>
+        <path d="M474,30 q26,-10 52,0"/>
+        <circle cx="500" cy="26" r="2.6" fill="#9b2d1f" stroke="none"/>
+        <path d="M460,206 q40,20 80,0" filter="url(#cartRough)"/>
+        <path d="M488,212 l12,7 l12,-7" />
+      </g>
+    </svg>
+    <div class="cart-inner">
+        <br />
+      <div class="kicker">An Atlas of Tongues &amp; Their Wanderings</div>
+      <h1>The World's Language Families</h1>
+      <div class="cart-rule"><span></span>✦<span></span></div>
+    </div>
+  </div>
+  <p class="sub">Every accepted family plotted near its homeland — each circle sized by speakers (or languages) and colored by region. <b>Tap any family with a known migration story</b> to fade the map and trace its spread from the homeland outward. Twelve major expansions are sourced from archaeology, genetics, and historical linguistics.</p>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search families…  (try: Austronesian, Bantu, Navajo, click)">
+    <select id="size">
+      <option value="speakers">Size by: speakers</option>
+      <option value="langs">Size by: languages</option>
+    </select>
+    <select id="migrSel">
+      <option value="">Trace a migration…</option>
+    </select>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="maptools">
+    <button class="btn" data-z="world">World</button>
+    <button class="btn" data-z="ie">Indo-European</button>
+    <button class="btn" data-z="austro">Austronesian</button>
+    <button class="btn" data-z="bantu">Bantu sweep</button>
+    <button class="btn" data-z="ng">New Guinea</button>
+    <button class="btn" id="zin">+</button>
+    <button class="btn" id="zout">&minus;</button>
+  </div>
+
+  <div class="mapbox">
+    <svg id="map" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <div class="banner" id="banner">
+    <span class="nm" id="bNm"></span>
+    <span class="conf" id="bConf"></span>
+    <span class="meta" id="bMeta"></span>
+    <span class="note" id="bNote"></span>
+    <span class="x" id="bX">clear ✕</span>
+  </div>
+
+  <p class="hint">Drag to pan · scroll or use <b>+ / −</b> to zoom · tap any circle for its family · tap one of the <b>12 charted families</b> (brighter, ringed) to trace its migration in expedition-red. Confidence of homeland claims: <b style="color:#4d7a3a">solid</b> · <b style="color:#a07414">supported</b> · <b style="color:#9b2d1f">contested</b>.</p>
+
+  <footer>
+    Bubble positions are approximate homeland/population centroids, not precise ranges. Migration routes are simplified great-circle paths summarizing scholarly reconstructions (Austronesian out-of-Taiwan; Bantu from the Nigeria–Cameroon borderlands; Indo-European Steppe hypothesis; etc.) — homeland claims range from well-supported to genuinely contested, as flagged. Family data: Wikipedia "List of language families" (Ethnologue/Glottolog). Map: D3 + Natural Earth land. Built as a static page — no servers, no tracking.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const FAMS = [{"name":"Afroasiatic","langs":381,"speakers":499294669,"region":"Africa, Eurasia","lon":40,"lat":18,"ex":"Arabic, Hebrew, Amharic, Hausa","note":"North Africa & the Middle East; famous for three-consonant word roots. Includes ancient Egyptian."},{"name":"Aroid","langs":5,"speakers":438100,"region":"Africa","lon":37,"lat":6,"ex":"","note":""},{"name":"Atlantic-Congo","langs":1410,"speakers":500000000,"region":"Africa","lon":20,"lat":2,"ex":"Swahili, Yoruba, Zulu, Igbo","note":"The giant core of Niger-Congo and the largest family by raw language count \u2014 sub-Saharan Africa's deep diversity."},{"name":"Berta","langs":6,"speakers":380000,"region":"Africa","lon":34,"lat":11,"ex":"","note":""},{"name":"Central Sudanic","langs":63,"speakers":9145280,"region":"Africa","lon":26,"lat":6,"ex":"","note":""},{"name":"Daju","langs":7,"speakers":261000,"region":"Africa","lon":24,"lat":12,"ex":"","note":""},{"name":"Dizoid","langs":3,"speakers":88840,"region":"Africa","lon":36,"lat":6,"ex":"","note":""},{"name":"Dogon","langs":20,"speakers":630820,"region":"Africa","lon":-3,"lat":14,"ex":"","note":""},{"name":"Eastern Jebel","langs":4,"speakers":104600,"region":"Africa","lon":35,"lat":12,"ex":"","note":""},{"name":"Fur","langs":2,"speakers":786900,"region":"Africa","lon":24,"lat":13,"ex":"","note":""},{"name":"Gumuz","langs":3,"speakers":253680,"region":"Africa","lon":35,"lat":11,"ex":"","note":""},{"name":"Heiban","langs":10,"speakers":276690,"region":"Africa","lon":30,"lat":11,"ex":"","note":""},{"name":"Ijaw","langs":9,"speakers":3221650,"region":"Africa","lon":6,"lat":5,"ex":"","note":""},{"name":"Kadu","langs":6,"speakers":120600,"region":"Africa","lon":30,"lat":11,"ex":"","note":""},{"name":"Katla-Tima","langs":3,"speakers":25000,"region":"Africa","lon":30,"lat":11,"ex":"","note":""},{"name":"Khoe-Kwadi","langs":14,"speakers":337337,"region":"Africa","lon":20,"lat":-22,"ex":"Khoekhoe, Nama","note":"Southern African 'click' languages of the Khoe peoples."},{"name":"Koman","langs":5,"speakers":94000,"region":"Africa","lon":34,"lat":9,"ex":"","note":""},{"name":"Kresh-Aja","langs":3,"speakers":48200,"region":"Africa","lon":24,"lat":8,"ex":"","note":""},{"name":"Kru","langs":38,"speakers":3800000,"region":"Africa","lon":-8,"lat":6,"ex":"","note":""},{"name":"Kuliak","langs":3,"speakers":14070,"region":"Africa","lon":34,"lat":2,"ex":"","note":""},{"name":"Kunama","langs":2,"speakers":181000,"region":"Africa","lon":37,"lat":14,"ex":"","note":""},{"name":"Kxa","langs":5,"speakers":104000,"region":"Africa","lon":20,"lat":-20,"ex":"","note":""},{"name":"Maban","langs":10,"speakers":1115260,"region":"Africa","lon":22,"lat":13,"ex":"","note":""},{"name":"Mande","langs":75,"speakers":27003000,"region":"Africa","lon":-8,"lat":12,"ex":"Bambara, Mandinka, Soninke","note":"West African family, split off early from the rest of Niger-Congo."},{"name":"Nilotic","langs":55,"speakers":33306780,"region":"Africa","lon":33,"lat":8,"ex":"Luo, Maasai, Dinka, Nuer","note":"East African cattle-herding peoples; tall-statured communities of the Rift Valley."},{"name":"Nubian","langs":13,"speakers":842050,"region":"Africa","lon":31,"lat":18,"ex":"","note":""},{"name":"Nyima","langs":2,"speakers":162000,"region":"Africa","lon":30,"lat":12,"ex":"","note":""},{"name":"Rashad","langs":2,"speakers":126000,"region":"Africa","lon":31,"lat":11,"ex":"","note":""},{"name":"Saharan","langs":10,"speakers":10940500,"region":"Africa","lon":15,"lat":15,"ex":"","note":""},{"name":"Songhay","langs":10,"speakers":3228000,"region":"Africa","lon":0,"lat":16,"ex":"","note":""},{"name":"Surmic","langs":11,"speakers":544680,"region":"Africa","lon":35,"lat":6,"ex":"","note":""},{"name":"Talodi","langs":8,"speakers":112250,"region":"Africa","lon":30,"lat":11,"ex":"","note":""},{"name":"Taman","langs":4,"speakers":128800,"region":"Africa","lon":22,"lat":14,"ex":"","note":""},{"name":"Ta-Ne-Omotic","langs":23,"speakers":7383320,"region":"Africa","lon":37,"lat":7,"ex":"","note":""},{"name":"Temein","langs":2,"speakers":14400,"region":"Africa","lon":30,"lat":12,"ex":"","note":""},{"name":"Tuu","langs":9,"speakers":2500,"region":"Africa","lon":20,"lat":-28,"ex":"\u01c3X\u00f3\u00f5","note":"The famous click languages of the San \u2014 some with the largest sound inventories on Earth."},{"name":"Zande","langs":6,"speakers":1898500,"region":"Africa","lon":26,"lat":5,"ex":"","note":""},{"name":"Indo-European","langs":586,"speakers":3237999904,"region":"Global","lon":20,"lat":50,"ex":"English, Spanish, Hindi, Russian, French","note":"The world's largest family by speakers \u2014 from Iceland to India, all from one steppe tongue ~6,000 years ago."},{"name":"Uralic","langs":49,"speakers":20716457,"region":"Eurasia","lon":40,"lat":62,"ex":"Finnish, Hungarian, Estonian","note":"The famous oddballs: Hungarian sits surrounded by IE but its cousin Finnish is 1,000 miles north."},{"name":"Tyrsenian","langs":4,"speakers":0,"region":"Eurasia","lon":12,"lat":42,"ex":"","note":""},{"name":"Turkic","langs":35,"speakers":179945933,"region":"Eurasia","lon":65,"lat":45,"ex":"Turkish, Uzbek, Kazakh, Azerbaijani","note":"A continuous belt from the Balkans to Siberia \u2014 remarkably mutually intelligible across huge distances."},{"name":"Hurro-Urartian","langs":2,"speakers":0,"region":"Eurasia","lon":42,"lat":38,"ex":"","note":""},{"name":"Northwest Caucasian","langs":4,"speakers":1655000,"region":"Eurasia","lon":41,"lat":44,"ex":"Circassian, Abkhaz","note":"Famous for enormous consonant inventories and very few vowels."},{"name":"Northeast Caucasian","langs":29,"speakers":4155258,"region":"Eurasia","lon":47,"lat":43,"ex":"Chechen, Avar, Lezgian","note":"Dagestan's astonishing density \u2014 dozens of languages packed into one mountainous region."},{"name":"Kartvelian","langs":4,"speakers":4850000,"region":"Eurasia","lon":43,"lat":42,"ex":"Georgian","note":"The South Caucasian family; Georgian has its own ancient alphabet."},{"name":"Dravidian","langs":84,"speakers":252807610,"region":"Eurasia","lon":78,"lat":12,"ex":"Tamil, Telugu, Kannada, Malayalam","note":"Southern India, unrelated to the Indo-Iranian languages to the north. Tamil has 2,000+ years of literature."},{"name":"Great Andamanese","langs":10,"speakers":3,"region":"Eurasia","lon":93,"lat":12,"ex":"Aka-Jeru","note":"Once a whole family on the Andaman Islands; now down to a literal handful of speakers."},{"name":"Ongan","langs":2,"speakers":296,"region":"Eurasia","lon":93,"lat":11,"ex":"","note":""},{"name":"Yeniseian","langs":6,"speakers":153,"region":"Eurasia","lon":88,"lat":62,"ex":"Ket","note":"A nearly-extinct Siberian family; Ket may be a distant cousin of Na-Dene in the Americas."},{"name":"Yukaghir","langs":4,"speakers":516,"region":"Eurasia","lon":150,"lat":68,"ex":"","note":""},{"name":"Sino-Tibetan","langs":514,"speakers":1385995195,"region":"Eurasia","lon":103,"lat":32,"ex":"Mandarin, Cantonese, Tibetan, Burmese","note":"Second-largest by speakers; anchored by Chinese. Tonal, character-written, utterly unrelated to IE."},{"name":"Mijiic","langs":2,"speakers":29500,"region":"Eurasia","lon":93,"lat":28,"ex":"","note":""},{"name":"Hmong-Mien","langs":43,"speakers":9332070,"region":"Eurasia","lon":108,"lat":26,"ex":"Hmong, Mien","note":"Small but widespread highland family of southern China and SE Asia; heavily tonal."},{"name":"Kra-Dai","langs":95,"speakers":81549828,"region":"Eurasia","lon":103,"lat":18,"ex":"Thai, Lao, Zhuang","note":"Mainland SE Asia; tonal. Thai is the big name. Once lumped with Chinese, now its own root."},{"name":"Austroasiatic","langs":158,"speakers":116323040,"region":"Eurasia","lon":105,"lat":16,"ex":"Vietnamese, Khmer","note":"Vietnamese & Khmer anchor a family scattered across SE Asia and pockets of India."},{"name":"Austronesian","langs":1274,"speakers":325862510,"region":"Africa, Eurasia, Oceania","lon":120,"lat":0,"ex":"Tagalog, Malay, Hawaiian, Maori","note":"The great seafaring family \u2014 canoed from Taiwan across the Pacific & Indian oceans, Madagascar to Easter Island."},{"name":"Tungusic","langs":15,"speakers":55800,"region":"Eurasia","lon":125,"lat":50,"ex":"Manchu, Evenki","note":"Siberia & NE China; Manchu was the court language of the Qing dynasty, now nearly extinct."},{"name":"Mongolic","langs":16,"speakers":7269480,"region":"Eurasia","lon":105,"lat":46,"ex":"Mongolian, Buryat","note":"Centered on Mongolia; descended from the language of Genghis Khan's era."},{"name":"Koreanic","langs":2,"speakers":77269890,"region":"Eurasia","lon":128,"lat":37,"ex":"Korean, Jeju","note":"Essentially Korean plus the endangered Jeju Island variety. No proven relatives."},{"name":"Nivkh","langs":2,"speakers":200,"region":"Eurasia","lon":142,"lat":53,"ex":"","note":""},{"name":"Japonic","langs":13,"speakers":129240180,"region":"Eurasia","lon":138,"lat":37,"ex":"Japanese, Okinawan","note":"Japanese plus the Ryukyuan languages. Long treated as an isolate before Ryukyuan was recognized as kin."},{"name":"Ainu","langs":3,"speakers":0,"region":"Eurasia","lon":143,"lat":43,"ex":"Ainu","note":"The indigenous language of northern Japan \u2014 an isolate family, now effectively dormant."},{"name":"Chukotko-Kamchatkan","langs":7,"speakers":6875,"region":"Eurasia","lon":170,"lat":65,"ex":"","note":""},{"name":"Trans-New Guinea","langs":376,"speakers":3678184,"region":"New Guinea","lon":142,"lat":-6,"ex":"Enga, Melpa, Dani","note":"One of the largest families by count, packed into New Guinea \u2014 Earth's densest linguistic region."},{"name":"Torricelli","langs":57,"speakers":114565,"region":"New Guinea","lon":143,"lat":-3,"ex":"","note":""},{"name":"Sepik","langs":49,"speakers":263404,"region":"New Guinea","lon":142,"lat":-4,"ex":"","note":""},{"name":"Lower Sepik","langs":6,"speakers":13070,"region":"New Guinea","lon":144,"lat":-4,"ex":"","note":""},{"name":"Timor-Alor-Pantar","langs":23,"speakers":380120,"region":"Lesser Sunda Islands","lon":125,"lat":-8,"ex":"","note":""},{"name":"Lakes Plain","langs":20,"speakers":8455,"region":"New Guinea","lon":137,"lat":-3,"ex":"","note":""},{"name":"Yam","langs":19,"speakers":7677,"region":"New Guinea","lon":141,"lat":-9,"ex":"","note":""},{"name":"Anim","langs":17,"speakers":32898,"region":"New Guinea","lon":140,"lat":-7,"ex":"","note":""},{"name":"Border","langs":15,"speakers":17080,"region":"New Guinea","lon":141,"lat":-3,"ex":"","note":""},{"name":"North Halmahera","langs":15,"speakers":279035,"region":"Halmahera","lon":128,"lat":1,"ex":"","note":""},{"name":"Angan","langs":13,"speakers":103739,"region":"New Guinea","lon":146,"lat":-7,"ex":"","note":""},{"name":"Geelvink Bay","langs":10,"speakers":8005,"region":"New Guinea","lon":136,"lat":-2,"ex":"","note":""},{"name":"Sko","langs":10,"speakers":5665,"region":"New Guinea","lon":141,"lat":-2,"ex":"","note":""},{"name":"South Bougainville","langs":9,"speakers":68700,"region":"New Guinea","lon":155,"lat":-6,"ex":"","note":""},{"name":"Baining","langs":6,"speakers":13800,"region":"New Guinea","lon":152,"lat":-4,"ex":"","note":""},{"name":"Strickland","langs":8,"speakers":6175,"region":"New Guinea","lon":142,"lat":-6,"ex":"","note":""},{"name":"Goilalan","langs":6,"speakers":47330,"region":"New Guinea","lon":147,"lat":-9,"ex":"","note":""},{"name":"Kiwaia","langs":6,"speakers":38030,"region":"New Guinea","lon":143,"lat":-8,"ex":"","note":""},{"name":"Left May","langs":6,"speakers":2005,"region":"New Guinea","lon":142,"lat":-4,"ex":"","note":""},{"name":"South Bird's Head","langs":6,"speakers":8200,"region":"New Guinea","lon":133,"lat":-3,"ex":"","note":""},{"name":"Eleman","langs":5,"speakers":45240,"region":"New Guinea","lon":145,"lat":-8,"ex":"","note":""},{"name":"Foja Range","langs":26,"speakers":23845,"region":"New Guinea","lon":139,"lat":-3,"ex":"","note":""},{"name":"Pauwasi","langs":5,"speakers":3880,"region":"New Guinea","lon":140,"lat":-3,"ex":"","note":""},{"name":"West Bird's Head","langs":5,"speakers":20090,"region":"New Guinea","lon":132,"lat":-1,"ex":"","note":""},{"name":"Yuat","langs":5,"speakers":7700,"region":"New Guinea","lon":143,"lat":-4,"ex":"","note":""},{"name":"Eastern Trans-Fly","langs":4,"speakers":6760,"region":"New Guinea","lon":142,"lat":-8,"ex":"","note":""},{"name":"North Bougainville","langs":4,"speakers":10020,"region":"New Guinea","lon":155,"lat":-5,"ex":"","note":""},{"name":"Demta-Sentani","langs":4,"speakers":36680,"region":"New Guinea","lon":140,"lat":-2,"ex":"","note":""},{"name":"Gogodala-Suki","langs":4,"speakers":30160,"region":"New Guinea","lon":142,"lat":-7,"ex":"","note":""},{"name":"Kikorian","langs":6,"speakers":13510,"region":"New Guinea","lon":144,"lat":-7,"ex":"","note":""},{"name":"Walio","langs":4,"speakers":856,"region":"New Guinea","lon":142,"lat":-4,"ex":"","note":""},{"name":"East Bird's Head","langs":3,"speakers":34800,"region":"New Guinea","lon":133,"lat":-1,"ex":"","note":""},{"name":"Mairasi","langs":3,"speakers":4385,"region":"New Guinea","lon":134,"lat":-3,"ex":"","note":""},{"name":"Amto-Musan","langs":2,"speakers":720,"region":"New Guinea","lon":141,"lat":-3,"ex":"","note":""},{"name":"Baibai-Fas","langs":2,"speakers":2840,"region":"New Guinea","lon":141,"lat":-3,"ex":"","note":""},{"name":"Bulaka River","langs":3,"speakers":520,"region":"New Guinea","lon":140,"lat":-7,"ex":"","note":""},{"name":"Hatam-Mansim","langs":2,"speakers":16000,"region":"New Guinea","lon":133,"lat":-1,"ex":"","note":""},{"name":"Inanwatan-Duriankere","langs":2,"speakers":1130,"region":"New Guinea","lon":132,"lat":-2,"ex":"","note":""},{"name":"Kaure-Kosare","langs":2,"speakers":700,"region":"New Guinea","lon":140,"lat":-3,"ex":"","note":""},{"name":"Konda-Yahadian","langs":2,"speakers":1000,"region":"New Guinea","lon":132,"lat":-2,"ex":"","note":""},{"name":"Senu River","langs":3,"speakers":1510,"region":"New Guinea","lon":139,"lat":-3,"ex":"","note":""},{"name":"Lepki-Murkim-Kembra","langs":3,"speakers":840,"region":"New Guinea","lon":140,"lat":-4,"ex":"","note":""},{"name":"Namla-Tofanma","langs":2,"speakers":280,"region":"New Guinea","lon":140,"lat":-3,"ex":"","note":""},{"name":"Pahoturi","langs":2,"speakers":4050,"region":"New Guinea","lon":142,"lat":-9,"ex":"","note":""},{"name":"Madang-Upper Yuat","langs":112,"speakers":10000,"region":"New Guinea","lon":145,"lat":-5,"ex":"","note":""},{"name":"Senagi","langs":2,"speakers":2960,"region":"New Guinea","lon":141,"lat":-4,"ex":"","note":""},{"name":"Taulil-Butam","langs":2,"speakers":2000,"region":"New Guinea","lon":152,"lat":-4,"ex":"","note":""},{"name":"Ramu","langs":29,"speakers":64730,"region":"New Guinea","lon":145,"lat":-4,"ex":"","note":""},{"name":"Teberan-Pawaian","langs":4,"speakers":37100,"region":"New Guinea","lon":145,"lat":-7,"ex":"","note":""},{"name":"Yawa-Saweru","langs":2,"speakers":10300,"region":"New Guinea","lon":136,"lat":-2,"ex":"","note":""},{"name":"Central Solomon","langs":4,"speakers":14800,"region":"New Guinea","lon":159,"lat":-8,"ex":"","note":""},{"name":"Chimbu-Wahgi","langs":15,"speakers":613400,"region":"New Guinea","lon":144,"lat":-6,"ex":"","note":""},{"name":"Engan","langs":9,"speakers":606930,"region":"New Guinea","lon":143,"lat":-6,"ex":"","note":""},{"name":"Pama-Nyungan","langs":250,"speakers":23539,"region":"Australia","lon":134,"lat":-25,"ex":"Pitjantjatjara, Warlpiri","note":"Covers ~90% of Australia \u2014 most Aboriginal languages outside the north belong here."},{"name":"Gunwinyguan","langs":5,"speakers":1314,"region":"Australia","lon":134,"lat":-13,"ex":"","note":""},{"name":"Western Daly","langs":3,"speakers":21,"region":"Australia","lon":130,"lat":-14,"ex":"","note":""},{"name":"Nyulnyulan","langs":3,"speakers":94,"region":"Australia","lon":123,"lat":-17,"ex":"","note":""},{"name":"Worrorran","langs":3,"speakers":108,"region":"Australia","lon":125,"lat":-16,"ex":"","note":""},{"name":"Mirndi","langs":3,"speakers":261,"region":"Australia","lon":136,"lat":-16,"ex":"","note":""},{"name":"Iwaidjan","langs":4,"speakers":491,"region":"Australia","lon":133,"lat":-11,"ex":"","note":""},{"name":"Mangarrayi-Maran","langs":4,"speakers":10,"region":"Australia","lon":134,"lat":-14,"ex":"","note":""},{"name":"Maningrida","langs":4,"speakers":1434,"region":"Australia","lon":134,"lat":-12,"ex":"","note":""},{"name":"Tangkic","langs":4,"speakers":73,"region":"Australia","lon":139,"lat":-17,"ex":"","note":""},{"name":"Jarrakan","langs":3,"speakers":130,"region":"Australia","lon":128,"lat":-16,"ex":"","note":""},{"name":"Bunuban","langs":2,"speakers":100,"region":"Australia","lon":126,"lat":-18,"ex":"","note":""},{"name":"Eastern Daly","langs":2,"speakers":0,"region":"Australia","lon":131,"lat":-14,"ex":"","note":""},{"name":"Garrwan","langs":2,"speakers":130,"region":"Australia","lon":137,"lat":-17,"ex":"","note":""},{"name":"Limilngan-Wulna","langs":2,"speakers":23,"region":"Australia","lon":131,"lat":-12,"ex":"","note":""},{"name":"Marrku-Wurrugu","langs":2,"speakers":0,"region":"Australia","lon":132,"lat":-11,"ex":"","note":""},{"name":"Northeastern Tasmanian","langs":2,"speakers":0,"region":"Australia","lon":147,"lat":-41,"ex":"","note":""},{"name":"Northern Daly","langs":2,"speakers":8,"region":"Australia","lon":131,"lat":-14,"ex":"","note":""},{"name":"Southeastern Tasmanian","langs":2,"speakers":0,"region":"Australia","lon":147,"lat":-43,"ex":"","note":""},{"name":"Western Tasmanian","langs":2,"speakers":0,"region":"Australia","lon":145,"lat":-42,"ex":"","note":""},{"name":"Northern Tasmanian","langs":2,"speakers":0,"region":"Australia","lon":146,"lat":-41,"ex":"","note":""},{"name":"Eskaleut","langs":10,"speakers":108705,"region":"North America, Eurasia","lon":-100,"lat":68,"ex":"Inuktitut, Yupik, Aleut","note":"The Inuit-Yupik-Aleut family, straddling the Arctic from Siberia to Greenland."},{"name":"Na-Dene","langs":46,"speakers":208552,"region":"North America","lon":-130,"lat":60,"ex":"Navajo, Apache, Tlingit","note":"Navajo is the most-spoken indigenous language north of Mexico. Possibly linked to Siberian Yeniseian."},{"name":"Tsimshianic","langs":4,"speakers":2910,"region":"North America","lon":-129,"lat":55,"ex":"","note":""},{"name":"Wakashan","langs":6,"speakers":710,"region":"North America","lon":-127,"lat":50,"ex":"","note":""},{"name":"Salishan","langs":25,"speakers":1969,"region":"North America","lon":-122,"lat":49,"ex":"","note":""},{"name":"Chimakuan","langs":2,"speakers":0,"region":"North America","lon":-124,"lat":48,"ex":"","note":""},{"name":"Chinookan","langs":4,"speakers":0,"region":"North America","lon":-122,"lat":46,"ex":"","note":""},{"name":"Kalapuyan","langs":3,"speakers":0,"region":"North America","lon":-123,"lat":45,"ex":"","note":""},{"name":"Coosan","langs":2,"speakers":0,"region":"North America","lon":-124,"lat":43,"ex":"","note":""},{"name":"Plateau","langs":4,"speakers":125,"region":"North America","lon":-119,"lat":47,"ex":"","note":""},{"name":"Shastan","langs":4,"speakers":0,"region":"North America","lon":-122,"lat":41,"ex":"","note":""},{"name":"Comecrudan","langs":3,"speakers":0,"region":"North America","lon":-98,"lat":26,"ex":"","note":""},{"name":"Yuki-Wappo","langs":2,"speakers":0,"region":"North America","lon":-123,"lat":39,"ex":"","note":""},{"name":"Pomoan","langs":7,"speakers":47,"region":"North America","lon":-123,"lat":39,"ex":"","note":""},{"name":"Wintuan","langs":2,"speakers":0,"region":"North America","lon":-122,"lat":40,"ex":"","note":""},{"name":"Palaihnihan","langs":2,"speakers":0,"region":"North America","lon":-121,"lat":41,"ex":"","note":""},{"name":"Maiduan","langs":4,"speakers":0,"region":"North America","lon":-121,"lat":39,"ex":"","note":""},{"name":"Utian","langs":13,"speakers":18,"region":"North America","lon":-121,"lat":38,"ex":"","note":""},{"name":"Chumashan","langs":6,"speakers":0,"region":"North America","lon":-120,"lat":34,"ex":"","note":""},{"name":"Uto-Aztecan","langs":58,"speakers":1910442,"region":"North America","lon":-110,"lat":28,"ex":"","note":""},{"name":"Yuman-Cochimi","langs":12,"speakers":3710,"region":"North America","lon":-114,"lat":32,"ex":"","note":""},{"name":"Siouan","langs":14,"speakers":33399,"region":"North America","lon":-100,"lat":43,"ex":"","note":""},{"name":"Algic","langs":47,"speakers":214768,"region":"North America","lon":-90,"lat":47,"ex":"Cree, Ojibwe, Blackfoot","note":"The Algonquian languages span Canada & the northern US \u2014 Cree and Ojibwe are still vigorous."},{"name":"Tanoan-Kiowa","langs":6,"speakers":6000,"region":"North America","lon":-106,"lat":35,"ex":"","note":""},{"name":"Caddoan","langs":5,"speakers":20,"region":"North America","lon":-97,"lat":36,"ex":"","note":""},{"name":"Totonacan","langs":12,"speakers":282250,"region":"North America","lon":-97,"lat":20,"ex":"","note":""},{"name":"Oto-Manguean","langs":176,"speakers":1678214,"region":"North America","lon":-97,"lat":17,"ex":"Zapotec, Mixtec","note":"Central Mexico's most diverse family; some of the few tonal languages of the Americas."},{"name":"Mixe-Zoque","langs":17,"speakers":153612,"region":"North America","lon":-95,"lat":17,"ex":"","note":""},{"name":"Tequistlatecan","langs":3,"speakers":5494,"region":"North America","lon":-96,"lat":16,"ex":"","note":""},{"name":"Muskogean","langs":6,"speakers":15640,"region":"North America","lon":-88,"lat":33,"ex":"","note":""},{"name":"Mayan","langs":31,"speakers":6522182,"region":"North America","lon":-90,"lat":16,"ex":"Yucatec, K\u02bciche\u02bc, Mam","note":"31 living Mayan languages across Guatemala & southern Mexico, heirs to the glyph-writing civilization."},{"name":"Xincan","langs":5,"speakers":0,"region":"North America","lon":-90,"lat":14,"ex":"","note":""},{"name":"Jicaquean","langs":2,"speakers":500,"region":"North America","lon":-87,"lat":15,"ex":"","note":""},{"name":"Lencan","langs":2,"speakers":0,"region":"North America","lon":-88,"lat":14,"ex":"","note":""},{"name":"Misumalpan","langs":5,"speakers":709000,"region":"North America","lon":-84,"lat":13,"ex":"","note":""},{"name":"Iroquoian","langs":9,"speakers":14543,"region":"North America","lon":-78,"lat":43,"ex":"","note":""},{"name":"Arawakan","langs":77,"speakers":699709,"region":"North America, South America","lon":-65,"lat":-5,"ex":"Garifuna, Wayuu","note":"One of the most widespread Amerindian families, from the Caribbean deep into the Amazon."},{"name":"Chibchan","langs":27,"speakers":306267,"region":"North America, South America","lon":-78,"lat":8,"ex":"","note":""},{"name":"Chocoan","langs":9,"speakers":114600,"region":"North America, South America","lon":-77,"lat":6,"ex":"","note":""},{"name":"Andoque-Urequena","langs":2,"speakers":370,"region":"South America","lon":-72,"lat":-1,"ex":"","note":""},{"name":"Cariban","langs":42,"speakers":67376,"region":"North America, South America","lon":-62,"lat":4,"ex":"Carib, Macushi","note":"Lent its name to the Caribbean; spread across northern South America."},{"name":"Barbacoan","langs":6,"speakers":24800,"region":"South America","lon":-78,"lat":1,"ex":"","note":""},{"name":"Chicham","langs":4,"speakers":89630,"region":"South America","lon":-77,"lat":-3,"ex":"","note":""},{"name":"Quechuan","langs":45,"speakers":7768820,"region":"South America","lon":-72,"lat":-13,"ex":"Quechua (Inca)","note":"The language of the Inca empire, still spoken by millions across the Andes."},{"name":"Aymaran","langs":4,"speakers":2808740,"region":"South America","lon":-68,"lat":-17,"ex":"Aymara","note":"Andean highlands around Lake Titicaca; coexists with Quechua."},{"name":"Uru-Chipaya","langs":2,"speakers":1200,"region":"South America","lon":-68,"lat":-19,"ex":"","note":""},{"name":"Huarpean","langs":3,"speakers":0,"region":"South America","lon":-68,"lat":-32,"ex":"","note":""},{"name":"Araucanian","langs":2,"speakers":262000,"region":"South America","lon":-72,"lat":-38,"ex":"","note":""},{"name":"Chonan","langs":6,"speakers":0,"region":"South America","lon":-70,"lat":-50,"ex":"","note":""},{"name":"Alacalufan","langs":3,"speakers":10,"region":"South America","lon":-74,"lat":-50,"ex":"","note":""},{"name":"Guajiboan","langs":5,"speakers":39290,"region":"South America","lon":-70,"lat":5,"ex":"","note":""},{"name":"Nukak-Kakwa","langs":2,"speakers":610,"region":"South America","lon":-71,"lat":2,"ex":"","note":""},{"name":"Otomakoan","langs":2,"speakers":0,"region":"South America","lon":-68,"lat":8,"ex":"","note":""},{"name":"Piaroa-Saliban","langs":3,"speakers":18630,"region":"South America","lon":-67,"lat":5,"ex":"","note":""},{"name":"Nadahup","langs":4,"speakers":2894,"region":"South America","lon":-68,"lat":1,"ex":"","note":""},{"name":"Yanomaman","langs":4,"speakers":31670,"region":"South America","lon":-64,"lat":3,"ex":"","note":""},{"name":"Tucanoan","langs":23,"speakers":30308,"region":"South America","lon":-70,"lat":-1,"ex":"","note":""},{"name":"Boran","langs":2,"speakers":1500,"region":"South America","lon":-72,"lat":-1,"ex":"","note":""},{"name":"Witotoan","langs":7,"speakers":17478,"region":"South America","lon":-73,"lat":-2,"ex":"","note":""},{"name":"Peba-Yaguan","langs":3,"speakers":5700,"region":"South America","lon":-72,"lat":-3,"ex":"","note":""},{"name":"Zaparoan","langs":3,"speakers":90,"region":"South America","lon":-75,"lat":-2,"ex":"","note":""},{"name":"Hibito-Cholon","langs":2,"speakers":0,"region":"South America","lon":-77,"lat":-8,"ex":"","note":""},{"name":"Cahuapanan","langs":2,"speakers":10370,"region":"South America","lon":-76,"lat":-5,"ex":"","note":""},{"name":"Ticuna-Yuri","langs":2,"speakers":48580,"region":"South America","lon":-70,"lat":-4,"ex":"","note":""},{"name":"Panoan","langs":38,"speakers":48679,"region":"South America","lon":-72,"lat":-8,"ex":"","note":""},{"name":"Arawan","langs":6,"speakers":5870,"region":"South America","lon":-66,"lat":-8,"ex":"","note":""},{"name":"Harakmbut-Katukinan","langs":4,"speakers":3310,"region":"South America","lon":-71,"lat":-12,"ex":"","note":""},{"name":"Tupian","langs":70,"speakers":5026502,"region":"South America","lon":-55,"lat":-12,"ex":"Guarani, Tupi","note":"Guarani is co-official in Paraguay \u2014 one of the Americas' great indigenous survival stories."},{"name":"Chapacuran","langs":4,"speakers":2019,"region":"South America","lon":-64,"lat":-12,"ex":"","note":""},{"name":"Nambikwaran","langs":6,"speakers":1068,"region":"South America","lon":-59,"lat":-13,"ex":"","note":""},{"name":"Bororoan","langs":3,"speakers":1392,"region":"South America","lon":-55,"lat":-16,"ex":"","note":""},{"name":"Kariri","langs":4,"speakers":0,"region":"South America","lon":-39,"lat":-9,"ex":"","note":""},{"name":"Zamucoan","langs":2,"speakers":5900,"region":"South America","lon":-60,"lat":-20,"ex":"","note":""},{"name":"Tacanan","langs":7,"speakers":2860,"region":"South America","lon":-67,"lat":-13,"ex":"","note":""},{"name":"Mascoian","langs":6,"speakers":20728,"region":"South America","lon":-58,"lat":-23,"ex":"","note":""},{"name":"Matacoan","langs":7,"speakers":60280,"region":"South America","lon":-62,"lat":-24,"ex":"","note":""},{"name":"Guaicuruan","langs":4,"speakers":49350,"region":"South America","lon":-59,"lat":-25,"ex":"","note":""},{"name":"Macro-Je","langs":29,"speakers":51093,"region":"South America","lon":-48,"lat":-12,"ex":"","note":""},{"name":"Charruan","langs":3,"speakers":0,"region":"South America","lon":-57,"lat":-32,"ex":"","note":""},{"name":"Purian","langs":2,"speakers":0,"region":"South America","lon":-42,"lat":-20,"ex":"","note":""},{"name":"Puquina","langs":4,"speakers":0,"region":"South America","lon":-69,"lat":-16,"ex":"","note":""},{"name":"Canari-Puruha","langs":2,"speakers":0,"region":"South America","lon":-79,"lat":-2,"ex":"","note":""},{"name":"Jirajaran","langs":3,"speakers":0,"region":"South America","lon":-69,"lat":10,"ex":"","note":""},{"name":"Lule-Vilela","langs":2,"speakers":0,"region":"South America","lon":-63,"lat":-26,"ex":"","note":""},{"name":"Timotean","langs":2,"speakers":0,"region":"South America","lon":-71,"lat":9,"ex":"","note":""},{"name":"Tiniguan","langs":3,"speakers":1,"region":"South America","lon":-71,"lat":3,"ex":"","note":""}];
+const MIGR = {"Indo-European":{"homeland":[46,49],"home_name":"Pontic-Caspian steppe","era":"~4500 BCE prehistoric \u00b7 1500s+ colonial","conf":"contested","note":"Two phases. Prehistoric (solid): the Steppe/Yamnaya spread from the Pontic-Caspian grasslands ~4500\u20132500 BCE with horse & wheel into Europe, Iran and India (a rival Anatolian-farming hypothesis is still debated). Colonial (dashed): from ~1500 CE, European maritime empires carried English, Spanish, Portuguese, French and Russian across the Atlantic and beyond \u2014 which is why IE is now the dominant family in the Americas, Australia and much of Africa.","routes":[[[46,49],[15,50],[5,48]],[[46,49],[25,45],[22,39]],[[46,49],[55,40],[52,32]],[[46,49],[65,35],[77,24]],[[46,49],[20,55],[12,55]]],"colonial":[[[-9,39],[-30,30],[-60,-10],[-58,-20]],[[-3,40],[-30,20],[-70,10],[-99,19]],[[-1,50],[-40,45],[-70,42],[-95,40]],[[2,47],[-30,35],[-73,46]],[[-9,38],[10,0],[18,-34]],[[0,51],[40,-10],[115,-25],[145,-37]],[[37,55],[80,58],[130,55],[140,65]]]},"Austronesian":{"homeland":[121,23.7],"home_name":"Taiwan","era":"~3000 BCE onward","conf":"solid","note":"Out-of-Taiwan: Neolithic farmers sailed to the Philippines ~3000 BCE, through Island SE Asia, then the Lapita push into the Pacific \u2014 reaching Madagascar west and Rapa Nui east. One of the best-supported expansions.","routes":[[[121,23.7],[121,14],[125,7],[117,0]],[[121,23.7],[125,0],[140,-5],[160,-10],[178,-18]],[[178,-18],[-170,-14],[-150,-17]],[[117,0],[90,-5],[47,-19]],[[125,7],[134,7],[145,8]]]},"Atlantic-Congo":{"homeland":[11,7],"home_name":"Nigeria\u2013Cameroon border","era":"~3000 BCE onward","conf":"supported","note":"The Bantu expansion (core of Atlantic-Congo): from the Nigeria\u2013Cameroon borderlands, one stream south through the Congo rainforest, another east to the Great Lakes, eventually reaching South Africa ~300 CE. Carried farming and ironworking.","routes":[[[11,7],[14,0],[16,-8],[18,-22],[28,-29]],[[11,7],[25,2],[33,-3],[37,-6]],[[37,-6],[31,-15],[31,-26]]]},"Turkic":{"homeland":[100,49],"home_name":"Mongolian\u2013Altai region","era":"~500 BCE\u20131000 CE","conf":"supported","note":"Spread westward from the eastern steppe along the Eurasian grassland corridor \u2014 into Central Asia, the Caucasus, Anatolia and the Balkans, mostly via later historical migrations and conquests.","routes":[[[100,49],[70,45],[60,42]],[[60,42],[50,40],[44,40]],[[44,40],[35,39],[32,39]],[[100,49],[90,52],[100,55]]]},"Uralic":{"homeland":[58,58],"home_name":"Ural Mountains region","era":"~4000\u20132000 BCE","conf":"contested","note":"A homeland somewhere around the Urals; descendants split far apart \u2014 Finns and Estonians to the Baltic, Hungarians carried west to the Carpathian Basin ~895 CE, Samoyedic peoples into Siberia. Exact homeland still debated.","routes":[[[58,58],[40,60],[25,60]],[[58,58],[45,55],[30,48],[19,47]],[[58,58],[75,67],[82,70]]]},"Afroasiatic":{"homeland":[38,10],"home_name":"Horn of Africa / NE Africa","era":"~12000\u20138000 BCE","conf":"contested","note":"Among the oldest families; homeland disputed between the Horn of Africa and the Levant/Sahara. Semitic later spread into the Middle East and Arabia; Berber across North Africa; Cushitic & Chadic across the Sahel.","routes":[[[38,10],[43,15],[45,24]],[[38,10],[20,20],[5,28],[-8,31]],[[38,10],[25,12],[12,13]]]},"Sino-Tibetan":{"homeland":[103,33],"home_name":"Upper Yellow River basin","era":"~5000 BCE onward","conf":"supported","note":"Likely originated among millet farmers of north-central China; one branch became Chinese, another (Tibeto-Burman) spread southwest into the Himalayas and SE Asian highlands.","routes":[[[103,33],[114,32],[118,30]],[[103,33],[95,30],[88,28]],[[103,33],[98,25],[96,21]]]},"Dravidian":{"homeland":[77,17],"home_name":"Western/Central India","era":"~3000 BCE or earlier","conf":"contested","note":"Now concentrated in South India, but isolated northern outliers (Brahui in Pakistan) hint at a once-wider northern range, possibly pushed south as Indo-Aryan spread. Origins genuinely uncertain.","routes":[[[77,17],[78,12],[78,9]],[[77,17],[70,28],[66,29]]]},"Na-Dene":{"homeland":[-145,63],"home_name":"Interior Alaska / NW Canada","era":"after ~6000 BCE","conf":"supported","note":"Spread south from the subarctic northwest; the Athabaskan branch reached the US Southwest, becoming Navajo and Apache. May share a deep root with Siberian Yeniseian (the Den\u00e9-Yeniseian proposal).","routes":[[[-145,63],[-130,58],[-120,50]],[[-120,50],[-112,40],[-109,36]]]},"Eskaleut":{"homeland":[-165,64],"home_name":"Bering Strait region","era":"~2000 BCE onward","conf":"solid","note":"The Inuit\u2013Yupik\u2013Aleut family spread along the Arctic coast in both directions from the Bering Strait \u2014 west to Siberia, and all the way east to Greenland.","routes":[[[-165,64],[-150,68],[-110,69],[-60,70],[-40,72]],[[-165,64],[-175,64],[-170,62]],[[-165,64],[-165,55],[-170,53]]]},"Arawakan":{"homeland":[-69,2],"home_name":"NW Amazonia","era":"~3000 BCE onward","conf":"supported","note":"One of the most widespread families of the Americas before contact \u2014 radiated from northwest Amazonia along the great river systems to the Caribbean and as far south as Argentina.","routes":[[[-69,2],[-67,8],[-64,12]],[[-69,2],[-60,-5],[-58,-12]],[[-64,12],[-61,15]]]},"Pama-Nyungan":{"homeland":[138,-18],"home_name":"Gulf of Carpentaria region","era":"~3000\u20131000 BCE","conf":"supported","note":"Covers ~90% of Australia. Likely spread from the Gulf of Carpentaria area across the continent in the mid-to-late Holocene, overlaying older non-Pama-Nyungan families now confined to the north.","routes":[[[138,-18],[145,-25],[151,-31]],[[138,-18],[129,-25],[122,-30],[116,-32]],[[138,-18],[134,-24],[138,-34]]]}};
+
+const REGION_KEYS={"Africa":"Africa","Eurasia":"Eurasia","Global":"Global","New Guinea":"NewGuinea",
+  "Australia":"Australia","North America":"NorthAmerica","South America":"SouthAmerica"};
+function rkey(r){return REGION_KEYS[r.split(",")[0].trim()]||"Other";}
+function rlabel(k){return {Africa:"Africa",Eurasia:"Eurasia",Global:"Global",NewGuinea:"New Guinea",
+  Australia:"Australia",NorthAmerica:"North America",SouthAmerica:"South America",Other:"Other"}[k]||k;}
+const RCOL=k=>getComputedStyle(document.documentElement).getPropertyValue("--r-"+k).trim();
+FAMS.forEach(f=>{f.rkey=rkey(f.region);});
+
+const fmt=n=>n>=1e9?(n/1e9).toFixed(1)+"B":n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+"M":
+  n>=1e3?(n/1e3).toFixed(n>=1e4?0:1)+"k":(""+n);
+const fmtFull=n=>n.toLocaleString("en-US");
+
+// ---- projection / map ----
+const W=960,H=500;
+const svg=d3.select("#map");
+const proj=d3.geoNaturalEarth1().scale(180).translate([W/2,H/2+10]);
+const path=d3.geoPath(proj);
+
+// ---- antique defs: roughen filter, paper grain, sea hatch, ink gradient ----
+const defs=svg.append("defs");
+defs.html(`
+  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="paper" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="11" result="p"/>
+    <feColorMatrix in="p" type="matrix" values="0 0 0 0 0.42  0 0 0 0 0.28  0 0 0 0 0.12  0 0 0 0.05 0"/>
+    <feComposite operator="over" in2="SourceGraphic"/>
+  </filter>
+  <pattern id="seaHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" fill="var(--sea)"/>
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#9c7a48" stroke-width="0.4" opacity="0.18"/>
+  </pattern>
+  <radialGradient id="seaGrad" cx="50%" cy="42%" r="65%">
+    <stop offset="0%" stop-color="#e0d0aa"/>
+    <stop offset="100%" stop-color="#cdb98c"/>
+  </radialGradient>
+`);
+
+const gRoot=svg.append("g");
+const gGrid=gRoot.append("g");
+const gLand=gRoot.append("g");
+const gArc=gRoot.append("g");
+const gBub=gRoot.append("g");
+const gHome=gRoot.append("g");
+const gDecor=svg.append("g");  // fixed overlay decor (compass, frame) — not zoomed
+
+// sea: gradient base + faint hatch + sphere outline
+gGrid.append("path").attr("class","sphere").attr("d",path({type:"Sphere"})).attr("fill","url(#seaGrad)");
+gGrid.append("path").attr("d",path({type:"Sphere"})).attr("fill","url(#seaHatch)").attr("opacity",.5);
+gGrid.append("path").attr("class","graticule").attr("d",path(d3.geoGraticule10()));
+gGrid.append("path").attr("d",path({type:"Sphere"})).attr("fill","none")
+  .attr("stroke","var(--land-edge)").attr("stroke-width",1.4).attr("opacity",.45).attr("filter","url(#rough)");
+
+
+// size scales
+let sizeMode="speakers";
+const maxSpk=d3.max(FAMS,f=>f.speakers||1);
+const maxLng=d3.max(FAMS,f=>f.langs);
+const rSpk=d3.scaleSqrt().domain([1,maxSpk]).range([2.2,34]);
+const rLng=d3.scaleSqrt().domain([1,maxLng]).range([2.2,30]);
+const radius=f=> sizeMode==="speakers" ? rSpk(Math.max(f.speakers,1)) : rLng(f.langs);
+
+const tracedSet=new Set(Object.keys(MIGR));
+
+// jitter overlapping homelands deterministically
+function jitter(f,i){
+  const seed=(f.name.charCodeAt(0)*7 + f.name.length*13 + i*3)%97;
+  const a=(seed/97)*Math.PI*2, d=(i%5)*0.6;
+  return [Math.cos(a)*d, Math.sin(a)*d];
+}
+
+let bub;
+function drawBubbles(){
+  const data=FAMS.map((f,i)=>{
+    const j=jitter(f,i);
+    const p=proj([f.lon+j[0],f.lat+j[1]]);
+    return {f,x:p[0],y:p[1]};
+  }).sort((a,b)=>radius(b.f)-radius(a.f));
+  bub=gBub.selectAll("circle").data(data,d=>d.f.name);
+  bub.exit().remove();
+  const en=bub.enter().append("circle").attr("class","bubble")
+    .on("mousemove",showTip).on("mouseleave",hideTip).on("click",(e,d)=>onPick(d.f))
+    .on("dblclick",(e,d)=>{ e.stopPropagation(); resetView(); });
+  bub=en.merge(bub);
+  bub.attr("cx",d=>d.x).attr("cy",d=>d.y)
+    .attr("r",d=>radius(d.f))
+    .attr("fill",d=>RCOL(d.f.rkey))
+    .attr("fill-opacity",d=>tracedSet.has(d.f.name)?.92:.6)
+    .attr("stroke",d=>tracedSet.has(d.f.name)?"#fff":"#0e1626")
+    .attr("stroke-width",d=>tracedSet.has(d.f.name)?1:.6)
+    .attr("stroke-opacity",d=>tracedSet.has(d.f.name)?.55:1);
+}
+
+// load world land
+// load world land + country borders
+fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+ .then(r=>r.json()).then(topo=>{
+   // merged landmass → clean continent outline (keeps the engraved shadow tidy)
+   const land=topojson.merge(topo,topo.objects.countries.geometries);
+   // interior borders only (shared edges between two countries)
+   const borders=topojson.mesh(topo,topo.objects.countries,(a,b)=>a!==b);
+   const d=path(land);
+   // soft offset shadow beneath (engraved depth)
+   gLand.append("path").attr("class","land-shadow").attr("d",d).attr("transform","translate(1.4,1.8)");
+   // faint outer halo ring (old-map coastline echo)
+   gLand.append("path").attr("class","coast-halo").attr("d",d).attr("transform","translate(-1,-1.2)");
+   // main engraved landmass
+   gLand.append("path").attr("class","land").attr("d",d);
+   // country borders on top
+   gLand.append("path").attr("class","border").attr("d",path(borders));
+   drawBubbles();
+ }).catch(()=>{ drawBubbles(); }); // bubbles still work without land
+
+// ---- tooltip ----
+const tip=document.getElementById("tip");
+function showTip(e,d){
+  const f=d.f;
+  tip.style.setProperty("--tc",RCOL(f.rkey));
+  const spk=f.speakers===0?"† extinct":fmtFull(f.speakers)+" speakers";
+  tip.innerHTML=`<span class="big">${f.name}</span>${f.langs} language${f.langs>1?"s":""} · ${spk}<br><span style="color:var(--faint)">${f.region}</span>`
+    +(tracedSet.has(f.name)?`<br><b>▶ click to trace migration</b>`:"");
+  const box=document.querySelector(".mapbox").getBoundingClientRect();
+  tip.style.left=Math.min(e.clientX-box.left+14,box.width-250)+"px";
+  tip.style.top=(e.clientY-box.top+14)+"px";
+  tip.style.opacity=1;
+}
+function hideTip(){tip.style.opacity=0;}
+
+// ---- migration animation ----
+let activeMigr=null;
+function clearMigr(){
+  activeMigr=null;
+  gArc.selectAll("*").remove();
+  gHome.selectAll("*").remove();
+  bub.attr("opacity",1);
+  document.getElementById("banner").classList.remove("show");
+  document.getElementById("migrSel").value="";
+}
+function traceMigr(name){
+  const m=MIGR[name]; if(!m) return;
+  activeMigr=name;
+  gArc.selectAll("*").remove(); gHome.selectAll("*").remove();
+  const regionCol=RCOL(rkey(FAMS.find(f=>f.name===name).region));
+  const col=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#9b2d1f";
+
+  // dim everything except this family's bubble
+  bub.attr("opacity",d=>d.f.name===name?1:.12);
+
+  // banner
+  const f=FAMS.find(x=>x.name===name);
+  const b=document.getElementById("banner");
+  b.style.setProperty("--bc",regionCol);
+  document.getElementById("bNm").textContent=name;
+  const cf=document.getElementById("bConf");
+  cf.textContent=m.conf; cf.className="conf "+m.conf;
+  document.getElementById("bMeta").textContent=`${m.home_name} · ${m.era} · ${f.langs} langs · ${fmt(f.speakers)} speakers`;
+  document.getElementById("bNote").textContent=m.note;
+  // phase key for two-phase families
+  const existingKey=b.querySelector(".phasekey"); if(existingKey) existingKey.remove();
+  if(m.colonial){
+    const pk=document.createElement("span");
+    pk.className="phasekey";
+    pk.innerHTML=`<span class="ph"><span class="dash solid" style="background:${col}"></span>prehistoric</span>`
+      +`<span class="ph"><span class="dash dashed" style="border-color:${col}"></span>colonial era</span>`;
+    b.insertBefore(pk, document.getElementById("bX"));
+  }
+  b.classList.add("show");
+
+  // draw each route as an animated great-circle-ish path
+  m.routes.forEach((route,ri)=>{
+    const line={type:"LineString",coordinates:route};
+    const d=path(line);
+    if(!d) return;
+    const glow=gArc.append("path").attr("class","arc-glow").attr("d",d)
+      .attr("stroke",col).attr("stroke-width",7);
+    const p=gArc.append("path").attr("class","arc").attr("d",d)
+      .attr("stroke",col).attr("stroke-width",2.2);
+    const L=p.node().getTotalLength();
+    p.attr("stroke-dasharray",L+" "+L).attr("stroke-dashoffset",L)
+      .transition().delay(ri*220).duration(1100).ease(d3.easeCubicInOut)
+      .attr("stroke-dashoffset",0);
+    glow.attr("stroke-dasharray",L+" "+L).attr("stroke-dashoffset",L)
+      .transition().delay(ri*220).duration(1100).ease(d3.easeCubicInOut)
+      .attr("stroke-dashoffset",0);
+    // traveling dot
+    const mv=gArc.append("circle").attr("class","mover").attr("r",2.6).attr("opacity",0);
+    mv.transition().delay(ri*220).duration(50).attr("opacity",1)
+      .transition().duration(1100).ease(d3.easeCubicInOut)
+      .attrTween("transform",()=>t=>{const pt=p.node().getPointAtLength(t*L);return `translate(${pt.x},${pt.y})`;})
+      .transition().duration(300).attr("opacity",0).remove();
+  });
+
+  // colonial-era routes (dashed, lighter) — drawn after prehistoric, with offset delay
+  const preCount=m.routes.length;
+  if(m.colonial){
+    m.colonial.forEach((route,ci)=>{
+      const d=path({type:"LineString",coordinates:route});
+      if(!d) return;
+      const p=gArc.append("path").attr("class","arc arc-colonial").attr("d",d)
+        .attr("stroke",col).attr("stroke-width",1.8).attr("opacity",.85)
+        .attr("stroke-dasharray","5 5");
+      const L=p.node().getTotalLength();
+      // animate draw using a moving short dash window
+      p.attr("stroke-dashoffset",L)
+        .transition().delay(preCount*220 + 300 + ci*180).duration(1300).ease(d3.easeCubicInOut)
+        .attr("stroke-dashoffset",0);
+      const mv=gArc.append("circle").attr("class","mover mover-colonial").attr("r",2.2).attr("opacity",0);
+      mv.transition().delay(preCount*220 + 300 + ci*180).duration(50).attr("opacity",.9)
+        .transition().duration(1300).ease(d3.easeCubicInOut)
+        .attrTween("transform",()=>t=>{const pt=p.node().getPointAtLength(t*L);return `translate(${pt.x},${pt.y})`;})
+        .transition().duration(300).attr("opacity",0).remove();
+    });
+  }
+
+  // homeland marker
+  const hp=proj(m.homeland);
+  gHome.append("circle").attr("class","home-star").attr("cx",hp[0]).attr("cy",hp[1]).attr("r",5)
+    .attr("fill",col).attr("opacity",0).transition().duration(400).attr("opacity",1);
+  gHome.append("circle").attr("cx",hp[0]).attr("cy",hp[1]).attr("r",5).attr("fill","none")
+    .attr("stroke",col).attr("stroke-width",2)
+    .transition().duration(1400).attr("r",16).attr("opacity",0)
+    .on("end",function(){d3.select(this).attr("r",5).attr("opacity",.8)
+      .transition().duration(1400).attr("r",16).attr("opacity",0)});
+  gHome.append("text").attr("class","home-label").attr("x",hp[0]+9).attr("y",hp[1]+4)
+    .text("◆ "+m.home_name).attr("opacity",0).transition().delay(300).duration(400).attr("opacity",1);
+}
+function onPick(f){
+  if(tracedSet.has(f.name)){ traceMigr(f.name); }
+  else {
+    // brief pulse for non-traced families + show in banner lightly
+    clearMigr();
+    const b=document.getElementById("banner");
+    b.style.setProperty("--bc",RCOL(f.rkey));
+    document.getElementById("bNm").textContent=f.name;
+    const cf=document.getElementById("bConf"); cf.textContent=""; cf.className="conf";
+    document.getElementById("bMeta").textContent=`${f.langs} langs · ${f.speakers===0?"† extinct":fmtFull(f.speakers)+" speakers"} · ${f.region}`;
+    document.getElementById("bNote").textContent=f.note||"No traced migration for this family — it's shown here at its approximate homeland.";
+    b.classList.add("show");
+  }
+}
+
+// ---- search highlight ----
+const KW={click:["Khoe-Kwadi","Tuu","Kxa"],caucasus:["Northwest Caucasian","Northeast Caucasian","Kartvelian"],
+  caucasian:["Northwest Caucasian","Northeast Caucasian","Kartvelian"],navajo:["Na-Dene"],inca:["Quechuan"],
+  aztec:["Uto-Aztecan"],maya:["Mayan"],inuit:["Eskaleut"],bantu:["Atlantic-Congo"],aboriginal:["Pama-Nyungan"],
+  papua:["Trans-New Guinea"]};
+const qEl=document.getElementById("q");
+qEl.addEventListener("input",()=>{
+  const q=qEl.value.trim().toLowerCase();
+  if(activeMigr) return;
+  if(!q){bub.attr("opacity",1);return;}
+  let kw=[]; for(const k in KW){if(k.includes(q)||q.includes(k))kw=kw.concat(KW[k]);}
+  bub.attr("opacity",d=>{
+    const f=d.f;
+    const hit=f.name.toLowerCase().includes(q)||(f.ex&&f.ex.toLowerCase().includes(q))||
+      (f.note&&f.note.toLowerCase().includes(q))||f.region.toLowerCase().includes(q)||kw.includes(f.name);
+    return hit?1:.1;
+  });
+});
+
+// ---- size toggle ----
+document.getElementById("size").addEventListener("change",e=>{sizeMode=e.target.value;drawBubbles();
+  document.querySelectorAll(".legend .right b").forEach(x=>x.textContent=sizeMode);});
+
+// ---- migration dropdown ----
+const mSel=document.getElementById("migrSel");
+Object.keys(MIGR).sort().forEach(n=>{
+  const o=document.createElement("option");o.value=n;o.textContent=n+"  ("+MIGR[n].conf+")";mSel.appendChild(o);
+});
+mSel.addEventListener("change",e=>{ if(e.target.value){ qEl.value=""; bub.attr("opacity",1); traceMigr(e.target.value);} else clearMigr(); });
+document.getElementById("bX").addEventListener("click",clearMigr);
+
+// ---- legend ----
+const legend=document.getElementById("legend");
+const order=["Global","Eurasia","Africa","NorthAmerica","SouthAmerica","NewGuinea","Australia","Other"];
+legend.innerHTML=order.map(k=>`<span data-k="${k}"><i style="background:${RCOL(k)}"></i>${rlabel(k)}</span>`).join("")
+  +`<span class="right">circle area = <b>speakers</b></span>`;
+legend.addEventListener("click",e=>{
+  const s=e.target.closest("[data-k]"); if(!s)return;
+  const k=s.dataset.k;
+  const on=s.style.opacity!=="0.3";
+  s.style.opacity=on?"0.3":"1";
+  bub.filter(d=>d.f.rkey===k).attr("display",on?"none":null);
+});
+
+// ---- antique decorations (fixed overlay, not zoomed) ----
+function drawDecor(){
+  const ink="var(--land-edge)", red="var(--accent)";
+  // decorative inner frame (double rule with corner ticks)
+  gDecor.append("rect").attr("x",6).attr("y",6).attr("width",W-12).attr("height",H-12)
+    .attr("fill","none").attr("stroke",ink).attr("stroke-width",1.4).attr("opacity",.55).attr("filter","url(#rough)");
+  gDecor.append("rect").attr("x",11).attr("y",11).attr("width",W-22).attr("height",H-22)
+    .attr("fill","none").attr("stroke",ink).attr("stroke-width",.6).attr("opacity",.4);
+
+  // compass rose, bottom-left
+  const cx=70, cy=H-70, R=34;
+  const cg=gDecor.append("g").attr("transform",`translate(${cx},${cy})`).attr("opacity",.9);
+  cg.append("circle").attr("r",R).attr("fill","rgba(255,250,235,.35)").attr("stroke",ink).attr("stroke-width",.8);
+  cg.append("circle").attr("r",R-5).attr("fill","none").attr("stroke",ink).attr("stroke-width",.4).attr("opacity",.6);
+  // 8-point star
+  const pts=[];
+  for(let i=0;i<8;i++){const a=i*Math.PI/4; const long=i%2===0; const r=long?R-4:R-16;
+    pts.push([Math.sin(a)*r, -Math.cos(a)*r]);}
+  // main 4 points (N E S W) as filled kites
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2;
+    const tip=[Math.sin(a)*(R-4), -Math.cos(a)*(R-4)];
+    const l=[Math.sin(a-0.28)*8, -Math.cos(a-0.28)*8];
+    const r=[Math.sin(a+0.28)*8, -Math.cos(a+0.28)*8];
+    cg.append("path").attr("d",`M0,0 L${l} L${tip} Z`).attr("fill",i===0?red:ink).attr("opacity",i===0?.9:.75);
+    cg.append("path").attr("d",`M0,0 L${r} L${tip} Z`).attr("fill",i===0?red:ink).attr("opacity",i===0?.65:.5);
+  }
+  // diagonal minor points
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2+Math.PI/4;
+    const tip=[Math.sin(a)*(R-14), -Math.cos(a)*(R-14)];
+    cg.append("path").attr("d",`M0,0 L${Math.sin(a-0.2)*6},${-Math.cos(a-0.2)*6} L${tip} Z`)
+      .attr("fill",ink).attr("opacity",.4);
+    cg.append("path").attr("d",`M0,0 L${Math.sin(a+0.2)*6},${-Math.cos(a+0.2)*6} L${tip} Z`)
+      .attr("fill",ink).attr("opacity",.3);
+  }
+  cg.append("text").attr("y",-R+1).attr("text-anchor","middle").attr("font-family","Cinzel,serif")
+    .attr("font-size",10).attr("font-weight",700).attr("fill",red).text("N");
+  cg.append("circle").attr("r",2).attr("fill",ink);
+
+  // "expedition routes" key card, bottom-right
+  const kx=W-176, ky=H-58;
+  const kg=gDecor.append("g").attr("transform",`translate(${kx},${ky})`);
+  kg.append("rect").attr("width",160).attr("height",44).attr("rx",2)
+    .attr("fill","rgba(255,250,235,.55)").attr("stroke",ink).attr("stroke-width",.7).attr("opacity",.9);
+  kg.append("text").attr("x",10).attr("y",16).attr("font-family","Cinzel,serif").attr("font-size",9)
+    .attr("letter-spacing",".1em").attr("fill","var(--ink)").text("EXPEDITION ROUTES");
+  kg.append("line").attr("x1",10).attr("y1",27).attr("x2",36).attr("y2",27).attr("stroke",red).attr("stroke-width",2.2);
+  kg.append("text").attr("x",42).attr("y",30).attr("font-family","Spectral,serif").attr("font-size",10)
+    .attr("fill","var(--ink2)").text("prehistoric");
+  kg.append("line").attr("x1",10).attr("y1",38).attr("x2",36).attr("y2",38).attr("stroke",red)
+    .attr("stroke-width",1.8).attr("stroke-dasharray","4 4");
+  kg.append("text").attr("x",42).attr("y",41).attr("font-family","Spectral,serif").attr("font-size",10)
+    .attr("fill","var(--ink2)").text("colonial era");
+
+  // corner flourish, top-right — a small sea-serpent-ish curl + "the unknown"
+  const fg=gDecor.append("g").attr("transform",`translate(${W-92},44)`).attr("opacity",.55);
+  fg.append("path").attr("d","M0,0 q14,-10 28,0 q-10,8 -20,4 q8,6 18,2")
+    .attr("fill","none").attr("stroke",ink).attr("stroke-width",1).attr("filter","url(#rough)");
+  fg.append("text").attr("x",2).attr("y",22).attr("font-family","IM Fell English,serif").attr("font-style","italic")
+    .attr("font-size",11).attr("fill",ink).text("terra incognita");
+}
+drawDecor();
+
+// ---- zoom / pan ----
+const zoom=d3.zoom().scaleExtent([1,9]).on("zoom",ev=>{
+  gRoot.attr("transform",ev.transform);
+  gBub.selectAll("circle").attr("stroke-width",d=>(tracedSet.has(d.f.name)?1:.6)/ev.transform.k);
+  gArc.selectAll(".arc").attr("stroke-width",2.2/ev.transform.k);
+  gArc.selectAll(".arc-colonial").attr("stroke-width",1.8/ev.transform.k);
+  gArc.selectAll(".arc-glow").attr("stroke-width",7/ev.transform.k);
+});
+svg.call(zoom)
+  .on("mousedown.cursor",()=>svg.classed("grabbing",true))
+  .on("mouseup.cursor",()=>svg.classed("grabbing",false));
+
+const PRESETS={
+  world:[W/2,H/2,1], ie:[proj([20,50])[0],proj([20,50])[1],2.4],
+  austro:[proj([140,-5])[0],proj([140,-5])[1],2.2],
+  bantu:[proj([22,-8])[0],proj([22,-8])[1],2.8],
+  ng:[proj([143,-5])[0],proj([143,-5])[1],6]
+};
+function zoomTo(key){
+  const [cx,cy,k]=PRESETS[key];
+  svg.transition().duration(900).call(zoom.transform,
+    d3.zoomIdentity.translate(W/2,H/2).scale(k).translate(-cx,-cy));
+}
+function resetView(){
+  clearMigr();
+  if(qEl) qEl.value="";
+  document.querySelectorAll("[data-z]").forEach(x=>x.classList.remove("on"));
+  document.querySelector('[data-z="world"]').classList.add("on");
+  zoomTo("world");
+}
+document.querySelectorAll("[data-z]").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("[data-z]").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); zoomTo(b.dataset.z);
+  if(b.dataset.z==="austro"){traceMigr("Austronesian");}
+  else if(b.dataset.z==="bantu"){traceMigr("Atlantic-Congo");}
+  else if(b.dataset.z==="ie"){traceMigr("Indo-European");}
+}));
+document.getElementById("zin").addEventListener("click",()=>svg.transition().call(zoom.scaleBy,1.5));
+document.getElementById("zout").addEventListener("click",()=>svg.transition().call(zoom.scaleBy,1/1.5));
+document.querySelector('[data-z="world"]').classList.add("on");
+</script>
+</body>
+</html>
